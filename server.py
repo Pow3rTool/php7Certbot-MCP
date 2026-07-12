@@ -807,9 +807,10 @@ def update_certificate_hostnames(ctx: Context, trust: str, account_id: int, cert
         _audit(ident, "update_certificate_hostnames", f"{trust}/{aid}/{cid}", False)
         return _out(cur)
     curc = (cur.get("certificate", cur) if isinstance(cur, dict) else {})
-    if kind == "ca" and str(curc.get("type", "")).lower() not in ("server", "serverexception", ""):
-        return _err(f"refusing to modify a non-server certificate (type={curc.get('type')!r}); "
-                    "this tool only re-signs server certs.")
+    if kind == "ca" and str(curc.get("type", "")).strip().lower() not in ("server", "serverexception"):
+        return _err(f"refusing to modify certificate id {cid} — its type is {curc.get('type')!r}, not a "
+                    "server cert. This tool only re-signs server certs; a blank/unknown type is "
+                    "refused too (a CA-pool server cert always carries type='server').")
     prev_expires = curc.get("expires")
     # Validate the NEW subjects against the account's zones — THIS is the check certbot's update
     # path omits, so we must do it or a swap could cross the account's zone boundary.
