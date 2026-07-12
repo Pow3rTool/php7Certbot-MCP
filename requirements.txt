@@ -1,0 +1,4 @@
+mcp==1.28.1
+httpx==0.28.1
+PyJWT==2.13.0
+cryptography==48.0.1
