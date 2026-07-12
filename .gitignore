@@ -1,0 +1,15 @@
+# Secrets — mounted at runtime, never committed.
+.env
+*.pem
+*.pfx
+*.p12
+*.key
+
+# Python
+venv/
+.venv/
+__pycache__/
+*.pyc
+
+# Local audit output
+logs/
