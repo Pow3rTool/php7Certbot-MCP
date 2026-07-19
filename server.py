@@ -927,4 +927,11 @@ def list_expired(ctx: Context) -> str:
 
 if __name__ == "__main__":
     # Config was validated at import (_validate_config) — fail-closed on every path.
+    import logging as _lg
+    _acc = os.environ.get("CERTBOT_ACCESS_LOG", "false").strip().lower() in ("1", "true", "yes")
+    if not _acc:
+        class _DropAccess(_lg.Filter):          # suppress uvicorn HTTP access lines (noise → Ringdown)
+            def filter(self, record):
+                return False
+        _lg.getLogger("uvicorn.access").addFilter(_DropAccess())
     mcp.run(transport="streamable-http")
