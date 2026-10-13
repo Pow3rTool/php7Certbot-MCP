@@ -34,7 +34,8 @@ import os, re, json, time, threading, base64, uuid
 from urllib.parse import urlparse, urljoin
 import httpx
 import jwt
-from mcp.server.fastmcp import Context, FastMCP
+from mcp.server.fastmcp import Context
+from mcp_http_auth import AuthenticatedFastMCP as FastMCP, HTTPAuth
 from mcp.server.transport_security import TransportSecuritySettings
 
 os.umask(0o077)
@@ -299,6 +300,8 @@ def _certbot(method, path, user_bearer, oid, body=None, timeout=None):
 # --- MCP server + tools ----------------------------------------------------------
 mcp = FastMCP(
     "php7certbot",
+    http_auth=HTTPAuth(resource=f"https://{PUBLIC_HOST}/certbot", tenant=TENANT,
+                       scope=REQUIRED_SCOPE, verify=lambda token: _identity(token)),
     instructions=("Read and manage certificates on the enterprise CertBot. Everywhere a trust axis "
                   "is needed, `trust`='public' (ACME / Let's Encrypt, publicly trusted) or 'private' "
                   "(internal enterprise CA, privately trusted). Read tools: list_accounts, "

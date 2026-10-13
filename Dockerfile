@@ -11,7 +11,7 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY server.py .
+COPY server.py mcp_http_auth.py .
 RUN useradd --system --uid 10001 mcp
 USER mcp
 

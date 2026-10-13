@@ -77,3 +77,13 @@ Build the self-contained image from the included `Dockerfile` and run it behind 
 reverse proxy that forwards the `Authorization` header. It runs non-root, validates every incoming
 bearer (JWKS signature, audience, issuer, expiry, required scope, allowed client), and talks to
 CertBot only over HTTPS.
+
+## HTTP authentication and client compatibility
+
+HTTP initialization, discovery, and tool calls require a valid Entra bearer on every request. Missing or invalid credentials receive HTTP 401 with a `WWW-Authenticate` challenge. Tool-specific role and backend authorization checks still apply. A session ID is not a credential.
+
+Public OAuth metadata is served at `/.well-known/oauth-protected-resource/certbot` (reverse-proxy alias) and `/certbot/.well-known/oauth-protected-resource`. Only OAuth connection metadata is public; tool descriptions and schemas require authentication. The root alias must proxy to the application path `/.well-known/oauth-protected-resource`.
+
+The existing JSON/SSE response mode, stateful/stateless behavior, tool schemas, audiences, scopes, and caller restrictions are retained. Clients may send a configured bearer directly or use an authenticated bridge. They must forward the bearer on initialization, subsequent POST/GET requests, and session deletion. No browser redirect, new registration flow, or new protocol-version requirement is introduced. Stateful clients reconnect after a service restart.
+
+Run `python -m unittest discover -s tests -p test_http_auth.py` to check authentication, metadata, JSON/SSE sessions, session-only rejection, and legacy SSE protection.
